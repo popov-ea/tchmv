@@ -11,4 +11,8 @@ router.get("/:id", (request, response) => {
     }
 });
 
+router.post("/for-user/upload/:userId", (request, response) => {
+    
+})
+
 module.exports = router;
