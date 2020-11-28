@@ -4,11 +4,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const authConfig = require("../config/authConfig");
+const authJwt = require("../middleware/authJwt");
 const User = db.User;
 const Role = db.Role;
 const router = express.Router();
 
-router.post("/new", (req, res) => {
+router.post("/new", [authJwt.verifyToken, authJwt.isAdmin] , (req, res) => {
     const userData = req.body;
     let role = userData.roleId && Role.findOne({
         where: {
@@ -33,7 +34,6 @@ router.post("/new", (req, res) => {
             country: userData.country,
             password: bcrypt.hashSync(userData.password)
         }).then((user) => {
-            
             res.status(200).send({ user: user, message: "User was registered succesfully" });
         }).catch((err) => {
             res.status(500).send({ message: err.message });
@@ -51,10 +51,11 @@ router.post("/signin", (req, res) => {
     User.findOne({
         where: {
             email: signinData.email
-        }
+        },
+        include: Role
     }).then((user) => {
         if (!user) {
-            return res.status(400).send({ message: "User not found" });
+            return res.status(500).send({ message: "User not found" });
         }
         const isPasswordValid = bcrypt.compareSync(signinData.password, user.password);
         if (!isPasswordValid) {
@@ -67,13 +68,16 @@ router.post("/signin", (req, res) => {
             expiresIn: 86400
         });
 
-        Role.findOne({
-            where: {
-                id: user.roleId
-            }
-        }).then((role) => {
-
-        })
+        res.status(200).json({
+            user: {
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                roleId: user.roleId,
+                role: user.Role.name
+            },
+            accessToken: token
+        });
     })
 });
 

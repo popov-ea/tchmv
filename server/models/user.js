@@ -8,6 +8,9 @@ module.exports = (sequelize, DataTypes) => {
       User.belongsTo(models.Role, {
         foreignKey: "roleId"
       });
+      User.belongsTo(models.Image, {
+        foreignKey: "imageId"
+      })
     }
   };
   User.init({
@@ -18,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     password: DataTypes.STRING,
     about: DataTypes.STRING,
     pin: DataTypes.STRING,
-    roleId: DataTypes.INTEGER
+    roleId: DataTypes.INTEGER,
+    imageId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'User',

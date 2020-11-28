@@ -2,6 +2,7 @@ import { TextField, makeStyles, Grid, Button, Dialog, DialogContent, DialogConte
 import ImageUploader from "../image/ImageUploader";
 import { useState } from "react";
 import Alert from "../dialog/Alert";
+import authHeader from "../../services/authHeader";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -15,11 +16,15 @@ const useStyles = makeStyles((theme) => ({
     },
     btn: {
         margin: theme.spacing(1),
+    },
+    gridCol: {
+        margin: theme.spacing(4)
     }
 }))
 
 export default function Registration() {
     const classes = useStyles();
+    const invalidFormText = "Invalid form";
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [country, setCountry] = useState("");
@@ -27,7 +32,8 @@ export default function Registration() {
     const [password, setPassword] = useState("");
     const [repeatPassword, setRepeatPassword] = useState("");
     const [alertOpened, setAlertOpened] = useState(false);
-    const [photo, setPhoto] = useState(null); 
+    const [photo, setPhoto] = useState(null);
+    const [errorText, setErrorText] = useState(invalidFormText);
     const validate = () => firstName && lastName && email && password && password === repeatPassword;
     const sendForm = (event) => {
         if (validate()) {
@@ -35,13 +41,32 @@ export default function Registration() {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    ...authHeader()
                 },
                 body: JSON.stringify({ firstName: firstName, lastName: lastName, country: country, email: email, password: password, repeatPassword: repeatPassword })
-            }).then((response) => response.json()).then((result) => {
-                const userId = result.user.id;
-                
-            });
+            }).then((response) => response.json())
+                .then((result) => {
+                    if (!photo) {
+                        return;
+                    }
+                    const userId = result.user.id;
+                    const uploadImageUrl = "/api/images/for-user/upload/" + userId;
+                    const formData = new FormData();
+                    formData.append("file", photo);
+                    fetch(uploadImageUrl, {
+                        method: "POST",
+                        headers: authHeader(),
+                        body: formData
+                    }).catch(() => {
+                        setErrorText("Photo upload failed");
+                        setAlertOpened(true);
+                    });
+                })
+                .catch((error) => {
+                    setErrorText("Can't save user");
+                    setAlertOpened(true);
+                });
         } else {
             setAlertOpened(true);
         }
@@ -49,11 +74,11 @@ export default function Registration() {
     return (
         <div>
             <Grid container alignItems="center" justify="center" style={{ minHeight: "100vh", minWidth: "100vh" }} direction="row">
-                <Grid item xs>
+                <Grid item className={classes.gridCol}>
                     <ImageUploader url="/api/images" imagePath="1" fileChange={(f) => setPhoto(f)}></ImageUploader>
                 </Grid>
 
-                <Grid item xs>
+                <Grid className={classes.gridCol} container item justify="center" direction="column" style={{maxWidth: 300}}>
                     <form className={classes.root} noValidate autoComplete="off">
                         <div>
                             <TextField id="firstName"
@@ -111,19 +136,17 @@ export default function Registration() {
                                 onChange={(event) => setRepeatPassword(event.target.value)}
                                 InputLabelProps={{ shrink: true }}></TextField>
                         </div>
-                        <Grid container alignItems="flex-end">
-                            <Button className={classes.btn} onClick={sendForm} variant="outlined" >Add user</Button>
-                        </Grid>
                     </form>
+                    <Button className={classes.btn} onClick={sendForm} variant="outlined" >Add user</Button>
                 </Grid>
             </Grid>
             <Dialog open={alertOpened}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description">
-                <DialogTitle>Invalid input!</DialogTitle>
+                <DialogTitle>Something went wrong...</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Please, check form
+                        { errorText }
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
