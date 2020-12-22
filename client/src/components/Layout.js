@@ -1,6 +1,7 @@
 import {Box} from "@material-ui/core";
 import {Route, Switch} from "react-router-dom";
 import authService from "../services/authService";
+import Home from "./Home";
 import Login from "./login/Login";
 import Registration from "./registration/Registration";
 import AuthRoute from "./routes/AuthRoute";
@@ -21,6 +22,7 @@ export default function Layout () {
                 <AuthRoute path="/ChangePassword" component={ChangePassword}></AuthRoute>
                 <AuthRoute path="/ChangePin" component={ChangePin}></AuthRoute>
                 <Route path="/Login" component={Login}></Route>
+                <AuthRoute path="/" component={Home}></AuthRoute>
             </Switch>
         </Box>
     )
