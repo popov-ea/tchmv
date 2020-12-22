@@ -5,6 +5,8 @@ import Login from "./login/Login";
 import Registration from "./registration/Registration";
 import AuthRoute from "./routes/AuthRoute";
 import RoleAuthRoute from "./routes/RoleAuthRoute";
+import ChangePassword from "./user/ChangePassword";
+import ChangePin from "./user/ChangePin";
 import EditProfile from "./user/EditProfile";
 import Profile from "./user/Profile";
 
@@ -16,6 +18,8 @@ export default function Layout () {
                 <RoleAuthRoute path="/Registration" component={Registration} action="users:new"></RoleAuthRoute>
                 <AuthRoute path="/Profile" component={Profile}></AuthRoute>
                 <AuthRoute path="/EditProfile" component={EditProfile}></AuthRoute>
+                <AuthRoute path="/ChangePassword" component={ChangePassword}></AuthRoute>
+                <AuthRoute path="/ChangePin" component={ChangePin}></AuthRoute>
                 <Route path="/Login" component={Login}></Route>
             </Switch>
         </Box>

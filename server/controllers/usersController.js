@@ -11,7 +11,7 @@ const router = express.Router();
 router.post("/new", [authJwt.verifyToken, authJwt.isAdmin], (req, res) => {
     const userData = req.body;
     if (!userData.email || !userData.firstName || !userData.lastName || !userData.country || !userData.password || userData.roleId == null) {
-        res.status(405).json({ message: "Invalid data"});
+        res.status(405).json({ message: "Invalid data" });
     }
     User.findOne({
         where: {
@@ -19,7 +19,7 @@ router.post("/new", [authJwt.verifyToken, authJwt.isAdmin], (req, res) => {
         }
     }).then((user) => {
         if (user) {
-            res.status(405).json({message: `User with email ${userData.email} already exists`});
+            res.status(405).json({ message: `User with email ${userData.email} already exists` });
             return;
         }
         Role.findOne({
@@ -47,7 +47,7 @@ router.post("/new", [authJwt.verifyToken, authJwt.isAdmin], (req, res) => {
             }
         });
     })
-    
+
 });
 
 router.post("/signin", (req, res) => {
@@ -138,5 +138,44 @@ router.get("/roles", (req, res) => {
         res.json(roles.map((r) => ({ id: r.id, name: r.name })));
     });
 });
+
+router.post("/change-password", authJwt.verifyToken, (req, res) => {
+    const isValid = req.body.oldPassword 
+                    && req.body.newPassword 
+                    && req.body.passwordConfirmation 
+                    && req.body.newPassword === req.body.passwordConfirmation;
+    if (!isValid) {
+        res.status(405).json({message: "Invalid form"});
+    }
+    User.findByPk(req.userId)
+        .then((user) => {
+            if (!user) {
+                res.status(404).json({mmessage: "User not found"});
+                return;
+            }
+            user.password = bcrypt.hashSync(req.body.newPassword);
+            user.save();
+            res.status(200).json({message: "Passsword updated"});
+        })
+        .catch(() => res.status(500).json({message: "Internal server error"}));
+});
+
+router.put("/pin", authJwt.verifyToken, (req, res) => {
+    if (req.body.pin == null || isNaN(req.body.pin)) {
+        res.status(405).json({message: "Invalid PIN"});
+        return;
+    }
+
+    User.findByPk(req.userId)
+        .then((user) => {
+            if (!user) {
+                res.status(404).json({message: "User not found"});
+                return;
+            }
+            user.pin = req.body.pin;
+            user.save();
+            res.status(200).json({message: "Pin updated"});
+        });
+})
 
 module.exports = router;
