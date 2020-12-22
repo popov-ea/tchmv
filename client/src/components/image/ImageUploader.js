@@ -1,5 +1,6 @@
 import { Button, Grid, makeStyles } from "@material-ui/core";
 import { useState } from "react";
+import authHeader from "../../services/authHeader";
 
 const useStyle = makeStyles((theme) => ({
     btn: {
@@ -27,12 +28,12 @@ export default function ImageUploader(props) {
                 props.fileChange(file);
             }
             if (props.uploadImmediately && props.uploadUrl) {
+                const formData = new FormData();
+                formData.append("file", file);
                 fetch(props.uploadUrl, {
                     method: "POST",
-                    headers: {
-                        "Content-type": "multipart/form-data"
-                    },
-                    body: file
+                    headers: authHeader(),
+                    body: formData
                 });
             }
         };
@@ -40,19 +41,22 @@ export default function ImageUploader(props) {
     };
 
     const handleDeleteClick = () => {
-        setSrc(imagePath ? url + "/" + imagePath : url);
         if (props.deleteImmediately && props.deleteUrl) {
+            setSrc(imagePath ? url + "/" + imagePath : url);
             fetch(props.deleteUrl, {
-                method: "GET"
-            });
+                method: "DELETE",
+                headers: authHeader()
+            })
+        } else {
+            setSrc(imagePath ? url + "/" + imagePath : url);
         }
     };
 
     return (<Grid container alignItems="center" justify="center" direction="column">
         <img src={src} width={400}></img>
         <div className={classes.btnContainer}>
-            <Button className={classes.btn} variant="outlined" onClick={handleAddClick}>Добавить</Button>
-            <Button className={classes.btn} variant="outlined" onClick={handleDeleteClick}>Удалить</Button>
+            <Button className={classes.btn} variant="outlined" onClick={handleAddClick}>Upload</Button>
+            <Button className={classes.btn} variant="outlined" onClick={handleDeleteClick}>Delete</Button>
         </div>
 
     </Grid>)

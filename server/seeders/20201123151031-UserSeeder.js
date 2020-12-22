@@ -9,7 +9,7 @@ module.exports = {
       about: "about admin",
       country: "country",
       password: bcrypt.hashSync("admin"),
-      pin: bcrypt.hashSync("42069"),
+      pin: 42069,
       roleId: 1
     }, {
       email: "expert@m.com",
@@ -18,7 +18,7 @@ module.exports = {
       about: "about expert",
       country: "country",
       password: bcrypt.hashSync("expert"),
-      pin: bcrypt.hashSync("11111"),
+      pin: 11111,
       roleId: 2
     }, {
       email: "competitor@m.com",
@@ -27,7 +27,7 @@ module.exports = {
       about: "about comp",
       country: "country",
       password: bcrypt.hashSync("competitor"),
-      pin: bcrypt.hashSync("22222"),
+      pin: 22222,
       roleId: 3
     }]);
   },

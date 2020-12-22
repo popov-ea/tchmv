@@ -2,10 +2,10 @@ import { Redirect, Route } from "react-router-dom";
 import authService from "../../services/authService";
 
 export default function AuthRoute(props) {
-    const {component, ...rest} = props;
+    const {component: Component, ...rest} = props;
     return <Route {...rest} render={(props) => {
-        authService.isAuthenticated 
-            ? <component {...props}></component>
+        return authService.isAuthenticated() 
+            ? <Component {...props} {...rest}></Component>
             : <Redirect to="/login"></Redirect>
     }}></Route>
 }

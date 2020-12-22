@@ -4,9 +4,6 @@ import './App.css';
 import Layout from "./components/Layout";
 
 function App() {
-  fetch("api/", {
-    method: "GET",
-  });
   return (
     <BrowserRouter>
       <Layout>

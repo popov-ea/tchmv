@@ -1,4 +1,4 @@
-import { TextField, makeStyles, Grid, Button, Dialog, DialogContent, DialogContentText, DialogActions, DialogTitle } from "@material-ui/core";
+import { TextField, makeStyles, Grid, Button, Dialog, DialogContent, DialogContentText, DialogActions, DialogTitle, Select, MenuItem, LinearProgress } from "@material-ui/core";
 import ImageUploader from "../image/ImageUploader";
 import { useState } from "react";
 import Alert from "../dialog/Alert";
@@ -19,8 +19,18 @@ const useStyles = makeStyles((theme) => ({
     },
     gridCol: {
         margin: theme.spacing(4)
+    },
+    select: {
+        margin: theme.spacing(1),
+        width: "48.5ch"
+    },
+    loading: {
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
     }
-}))
+}));
+
+const fetchRoles = () => fetch("/api/users/roles").then((response) => response.json());
 
 export default function Registration() {
     const classes = useStyles();
@@ -34,9 +44,18 @@ export default function Registration() {
     const [alertOpened, setAlertOpened] = useState(false);
     const [photo, setPhoto] = useState(null);
     const [errorText, setErrorText] = useState(invalidFormText);
-    const validate = () => firstName && lastName && email && password && password === repeatPassword;
+    const [roles, setRoles] = useState([]);
+    const [role, setRole] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    if (roles.length === 0) {
+        fetchRoles().then((result) => setRoles(result));
+    }
+
+    const validate = () => firstName && lastName && email && role && password && password === repeatPassword;
     const sendForm = (event) => {
         if (validate()) {
+            setLoading(true);
             fetch("/api/users/new", {
                 method: "POST",
                 headers: {
@@ -44,28 +63,38 @@ export default function Registration() {
                     'Content-Type': 'application/json',
                     ...authHeader()
                 },
-                body: JSON.stringify({ firstName: firstName, lastName: lastName, country: country, email: email, password: password, repeatPassword: repeatPassword })
-            }).then((response) => response.json())
-                .then((result) => {
-                    if (!photo) {
-                        return;
-                    }
-                    const userId = result.user.id;
-                    const uploadImageUrl = "/api/images/for-user/upload/" + userId;
-                    const formData = new FormData();
-                    formData.append("file", photo);
-                    fetch(uploadImageUrl, {
-                        method: "POST",
-                        headers: authHeader(),
-                        body: formData
-                    }).catch(() => {
-                        setErrorText("Photo upload failed");
-                        setAlertOpened(true);
-                    });
-                })
+                body: JSON.stringify({ firstName: firstName, lastName: lastName, country: country, email: email, password: password, repeatPassword: repeatPassword, roleId: role })
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error();
+                }
+                return response.json();
+            }).then((result) => {
+                if (!photo) {
+                    setLoading(false);
+                    return;
+                }
+                const userId = result.user.id;
+                const uploadImageUrl = "/api/images/for-user/" + userId;
+                const formData = new FormData();
+                formData.append("file", photo);
+                fetch(uploadImageUrl, {
+                    method: "POST",
+                    headers: authHeader(),
+                    body: formData
+                }).then(() => {
+                    setLoading(false);
+                    console.log(123);
+                }).catch(() => {
+                    setErrorText("Photo upload failed");
+                    setAlertOpened(true);
+                    setLoading(false);
+                });
+            })
                 .catch((error) => {
                     setErrorText("Can't save user");
                     setAlertOpened(true);
+                    setLoading(false);
                 });
         } else {
             setAlertOpened(true);
@@ -75,10 +104,10 @@ export default function Registration() {
         <div>
             <Grid container alignItems="center" justify="center" style={{ minHeight: "100vh", minWidth: "100vh" }} direction="row">
                 <Grid item className={classes.gridCol}>
-                    <ImageUploader url="/api/images" imagePath="1" fileChange={(f) => setPhoto(f)}></ImageUploader>
+                    <ImageUploader url="/api/images" fileChange={(f) => setPhoto(f)}></ImageUploader>
                 </Grid>
 
-                <Grid className={classes.gridCol} container item justify="center" direction="column" style={{maxWidth: 300}}>
+                <Grid className={classes.gridCol} container item justify="center" direction="column" style={{ maxWidth: 300 }}>
                     <form className={classes.root} noValidate autoComplete="off">
                         <div>
                             <TextField id="firstName"
@@ -136,8 +165,17 @@ export default function Registration() {
                                 onChange={(event) => setRepeatPassword(event.target.value)}
                                 InputLabelProps={{ shrink: true }}></TextField>
                         </div>
+                        <div>
+                            <Select required
+                                className={classes.select}
+                                variant="outlined"
+                                value={role}
+                                onChange={(event) => setRole(event.target.value)}
+                            >{roles.map((r) => (<MenuItem value={r.id}>{r.name}</MenuItem>))}</Select>
+                        </div>
                     </form>
                     <Button className={classes.btn} onClick={sendForm} variant="outlined" >Add user</Button>
+                    {loading && <LinearProgress className={classes.loading}></LinearProgress>}
                 </Grid>
             </Grid>
             <Dialog open={alertOpened}
@@ -146,7 +184,7 @@ export default function Registration() {
                 <DialogTitle>Something went wrong...</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        { errorText }
+                        {errorText}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

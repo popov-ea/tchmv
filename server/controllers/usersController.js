@@ -2,43 +2,52 @@ const express = require("express");
 const db = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const fs = require("fs");
 const authConfig = require("../config/authConfig");
 const authJwt = require("../middleware/authJwt");
 const User = db.User;
 const Role = db.Role;
 const router = express.Router();
 
-router.post("/new", [authJwt.verifyToken, authJwt.isAdmin] , (req, res) => {
+router.post("/new", [authJwt.verifyToken, authJwt.isAdmin], (req, res) => {
     const userData = req.body;
-    let role = userData.roleId && Role.findOne({
+    if (!userData.email || !userData.firstName || !userData.lastName || !userData.country || !userData.password || userData.roleId == null) {
+        res.status(405).json({ message: "Invalid data"});
+    }
+    User.findOne({
         where: {
-            id: userData.roleId
+            email: userData.email
         }
-    });
-
-    if (!role) {
-        //res.status(400).send({message: "Incorrect role"});
-        role = Role.findOne({
+    }).then((user) => {
+        if (user) {
+            res.status(405).json({message: `User with email ${userData.email} already exists`});
+            return;
+        }
+        Role.findOne({
             where: {
-                name: "competitor"
+                id: userData.roleId
+            }
+        }).then((role) => {
+            if (!role) {
+                res.status(405).json({ message: "Role doesn't exist" });
+                return;
+            }
+            if (userData.email && userData.password) {
+                User.create({
+                    email: userData.email,
+                    firstName: userData.firstName,
+                    lastName: userData.lastName,
+                    country: userData.country,
+                    password: bcrypt.hashSync(userData.password),
+                    roleId: role.id
+                }).then((user) => {
+                    res.status(200).send({ user: user, message: "User was registered succesfully" });
+                }).catch((err) => {
+                    res.status(500).send({ message: err.message });
+                });
             }
         });
-    }
-
-    if (userData.email && userData.password) {
-        User.create({
-            email: userData.email,
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            country: userData.country,
-            password: bcrypt.hashSync(userData.password)
-        }).then((user) => {
-            res.status(200).send({ user: user, message: "User was registered succesfully" });
-        }).catch((err) => {
-            res.status(500).send({ message: err.message });
-        });
-    }
+    })
+    
 });
 
 router.post("/signin", (req, res) => {
@@ -70,15 +79,64 @@ router.post("/signin", (req, res) => {
 
         res.status(200).json({
             user: {
+                id: user.id,
                 email: user.email,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 roleId: user.roleId,
-                role: user.Role.name
+                role: user.Role && user.Role.name
             },
             accessToken: token
         });
     })
+});
+
+router.get("/info/:id", authJwt.verifyToken, (req, res) => {
+    User.findByPk(req.params.id).then((user) => {
+        if (!user) {
+            return res.status(404).json({ message: "user not found" });
+        }
+        res.status(200).json({
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            country: user.country,
+            about: user.about,
+            pin: user.pin
+        });
+    })
+});
+
+router.post("/info/:id", authJwt.verifyToken, (req, res) => {
+    User.findByPk(req.params.id).then((user) => {
+        if (!user) {
+            return res.status(404).json({ mesage: "user not found" });
+        }
+        const userInfo = req.body;
+        if (!userInfo.firstName || !userInfo.lastName) {
+            return res.status(405).json({ message: "invalid form" });
+        }
+
+        user.firstName = userInfo.firstName;
+        user.lastName = userInfo.lastName;
+        user.country = userInfo.country;
+        user.about = userInfo.about;
+
+        user.save().then((user) => {
+            return res.status(200).json({
+                firstName: user.firstName,
+                lastName: user.lastName,
+                country: user.country,
+                about: user.about
+            });
+        });
+    });
+});
+
+router.get("/roles", (req, res) => {
+    Role.findAll().then((roles) => {
+        res.json(roles.map((r) => ({ id: r.id, name: r.name })));
+    });
 });
 
 module.exports = router;

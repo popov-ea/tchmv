@@ -34,10 +34,10 @@ const getUser = () => {
     return JSON.parse(window.localStorage.getItem("user"));
 }
 
-const AuthService = {
+const authService = {
     login,
     logout,
     isAuthenticated,
     getUser
 }
-export default AuthService;
+export default authService;

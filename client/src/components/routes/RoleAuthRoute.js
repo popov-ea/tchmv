@@ -8,7 +8,7 @@ export default function RoleAuthRoute(props) {
 
     return <Route {...rest} render={(props) => {
         return authService.isAuthenticated() && checkPermission(authService.getUser().role, action, data)
-            ? <Component {...props}></Component>
+            ? <Component {...props} {...rest}></Component>
             : <Redirect to="/"></Redirect>
     }}></Route>
 }
