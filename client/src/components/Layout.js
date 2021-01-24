@@ -3,6 +3,7 @@ import {Route, Switch} from "react-router-dom";
 import authService from "../services/authService";
 import Home from "./Home";
 import Login from "./login/Login";
+import NewPost from "./post/NewPost";
 import Registration from "./registration/Registration";
 import AuthRoute from "./routes/AuthRoute";
 import RoleAuthRoute from "./routes/RoleAuthRoute";
@@ -16,11 +17,13 @@ export default function Layout () {
     return (
         <Box>
             <Switch>    
-                <RoleAuthRoute path="/Registration" component={Registration} action="users:new"></RoleAuthRoute>
+                <AuthRoute path="/Registration" component={Registration}></AuthRoute>
                 <AuthRoute path="/Profile" component={Profile}></AuthRoute>
                 <AuthRoute path="/EditProfile" component={EditProfile}></AuthRoute>
                 <AuthRoute path="/ChangePassword" component={ChangePassword}></AuthRoute>
                 <AuthRoute path="/ChangePin" component={ChangePin}></AuthRoute>
+                <AuthRoute path="/NewLost" component={NewPost} lost></AuthRoute>
+                <AuthRoute path="/NewFound" component={NewPost} found></AuthRoute>
                 <Route path="/Login" component={Login}></Route>
                 <AuthRoute path="/" component={Home}></AuthRoute>
             </Switch>

@@ -5,9 +5,7 @@ module.exports = {
     await queryInterface.bulkInsert("roles", [{
       name: "admin"
     }, {
-      name: "expert"
-    }, {
-      name: "competitor"
+      name: "user"
     }]);
   },
 

@@ -3,15 +3,18 @@ const express = require("express");
 const db = require("../models");
 const Image = db.Image;
 const User = db.User;
+const PostFound = db.PostFound;
+const PostLost = db.PostLost;
 const nanoId = require("nanoid");
 const path = require("path");
 const router = express.Router();
 const fs = require("fs");
-const { request, response } = require("express");
 const authJwt = require("../middleware/authJwt");
+const { Op } = require("sequelize");
 
 
-router.use(multer({ storage: multer.memoryStorage() }).single("file"));
+// router.use(multer({ storage: multer.memoryStorage() }).single("file"));
+router.use(multer({ storage: multer.memoryStorage() }).array("files"));
 
 router.get("/", (request, response) => {
     const filePath = path.resolve("files/images/default.png");
@@ -57,7 +60,7 @@ router.post("/for-user/:userId", authJwt.verifyToken, (request, response) => {
                 fs.unlinkSync(path.resolve("files/images/" + user.Image.path));
             }
             user.imageId = imageId;
-            return user.save();x
+            return user.save();
         })
         .then(() => response.status(200).json({ photoId: imageId }))
         .catch(() => response.status(500));
@@ -99,6 +102,89 @@ router.get("/for-user/:userId", (request, response) => {
             const filePath = path.resolve("files/images/" + fileName);
             response.sendFile(filePath);
         });
-})
+});
+
+router.post("/for-post-found/:postId", (request, response) => {
+    const files = request.files;
+    if (!request.params.postId || !files) {
+        response.status(400);
+        return;
+    }
+    PostFound.findByPk(request.params.postId)
+        .then(post => {
+            if (!post) {
+                response.status(404);
+            }
+
+            const fileNames = [];
+
+            files.forEach(f => {
+                const type = f.mimetype.split("/")[1];
+                const buffer = f.buffer;
+                const filePath = nanoId.nanoid() + "." + type;
+                fileNames.push(filePath);
+                fs.writeFile("files/images/" + filePath, buffer, {}, () => {});
+            });
+
+            return Image.bulkCreate(fileNames.map(x => ({ path: x })))
+                .then(() => Image.findAll({
+                    where: {
+                        path: {
+                            [Op.or]: fileNames
+                        }
+                    }
+                }))
+                .then((images) => {
+                    post.setImages(images);
+                    post.save();
+                });
+        }).then(() => {
+            response.status(200).json({message: "OK"});
+        }).catch(() => {
+            response.status(500).json({message: "Internal server error"});
+        });
+});
+
+router.post("/for-post-lost/:postId", (request, response) => {
+    const files = request.files;
+    if (!request.params.postId || !files) {
+        response.status(400);
+        return;
+    }
+    PostLost.findByPk(request.params.postId)
+        .then(post => {
+            if (!post) {
+                response.status(404);
+            }
+
+            const fileNames = [];
+
+            files.forEach(f => {
+                const type = f.mimetype.split("/")[1];
+                const buffer = f.buffer;
+                const filePath = nanoId.nanoid() + "." + type;
+                fileNames.push(filePath);
+                fs.writeFile("files/images/" + filePath, buffer, {}, () => {});
+            });
+
+
+            return Image.bulkCreate(fileNames.map(x => ({ path: x })))
+                .then(() => Image.findAll({
+                    where: {
+                        path: {
+                            [Op.or]: fileNames
+                        }
+                    }
+                }))
+                .then((images) => {
+                    post.setImages(images);
+                    post.save();
+                });
+        }).then(() => {
+            response.status(200).json({message: "OK"});
+        }).catch(() => {
+            response.status(500).json({message: "Internal server error"});
+        });;
+});
 
 module.exports = router;

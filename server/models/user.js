@@ -11,6 +11,15 @@ module.exports = (sequelize, DataTypes) => {
       User.belongsTo(models.Image, {
         foreignKey: "imageId"
       })
+      this.hasMany(models.PostFound, {
+        foreignKey: "userId"
+      });
+      this.hasMany(models.PostLost, {
+        foreignKey: "userId"
+      });
+      this.hasMany(models.Subscription, {
+        foreignKey: "userId"
+      });
     }
   };
   User.init({

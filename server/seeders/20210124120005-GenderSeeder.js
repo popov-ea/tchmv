@@ -2,10 +2,9 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert("images", [
-      {
-        path: "default.png"
-      }
+    await queryInterface.bulkInsert("Genders", [
+      { name: "Male" },
+      { name: "Female" }
     ]);
   },
 

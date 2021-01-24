@@ -1,6 +1,6 @@
 const rbacRules = {
     admin: {
-        static: ["users:new"],
+        static: []
     },
     expert: {
         static: []

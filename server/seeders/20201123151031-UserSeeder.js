@@ -12,23 +12,17 @@ module.exports = {
       pin: 42069,
       roleId: 1
     }, {
-      email: "expert@m.com",
-      firstName: "expert",
-      lastName: "expert",
-      about: "about expert",
-      country: "country",
+      email: "aa@m.com",
+      firstName: "aa",
+      lastName: "aa",
       password: bcrypt.hashSync("expert"),
-      pin: 11111,
       roleId: 2
     }, {
-      email: "competitor@m.com",
-      firstName: "comp",
-      lastName: "comp",
-      about: "about comp",
-      country: "country",
+      email: "bb@m.com",
+      firstName: "bb",
+      lastName: "bb",
       password: bcrypt.hashSync("competitor"),
-      pin: 22222,
-      roleId: 3
+      roleId: 2
     }]);
   },
 
