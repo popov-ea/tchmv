@@ -38,7 +38,8 @@ module.exports = (sequelize, DataTypes) => {
     districtId: DataTypes.INTEGER,
     speciesId: DataTypes.INTEGER,
     breedId: DataTypes.INTEGER,
-    userId: DataTypes.INTEGER
+    userId: DataTypes.INTEGER,
+    closed: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'PostFound',

@@ -181,7 +181,7 @@ export default function NewPost(props) {
                         onChange={updatePhotos}
                         imgExtension={[".jpg", ".gif", ".png", ".gif"]}
                         withLabel={false}
-                        maxFileSize={5242880}
+                        maxFileSize={10000000000}
                     >
 
                     </ImageUploader>

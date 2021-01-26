@@ -29,7 +29,7 @@ router.get("/:id", (request, response) => {
                 id: imageId
             }
         }).then((image) => {
-            const filePath = path.resolve("files/images/" + image ? image.path : "default.png");
+            const filePath = path.resolve("files/images/" + (image ? image.path : "default.png"));
             response.sendFile(filePath);
         });
     }
