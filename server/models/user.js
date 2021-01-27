@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Subscription, {
         foreignKey: "userId"
       });
+      this.hasMany(models.Dialog, {
+        foreignKey: "initiatorId",
+        as: "InitiatedDialogs"
+      });
     }
   };
   User.init({

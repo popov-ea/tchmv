@@ -92,7 +92,7 @@ const getPosts = (params) => {
         return new Date(a.createdAt) - new Date(b.createdAt);
     }))
         .then((sortedPosts) => {
-            return sortedPosts.slice(start, sortedPosts.length /*end*/)
+            return sortedPosts.slice(start, sortedPosts.length > end ? end : sortedPosts.length)
         });
 
     return promise;

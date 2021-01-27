@@ -1,11 +1,14 @@
 import logo from './logo.svg';
-import { BrowserRouter, Redirect } from "react-router-dom";
+import { BrowserRouter, Router } from "react-router-dom";
 import './App.css';
 import Layout from "./components/Layout";
+import { createBrowserHistory } from "history";
+
+const history = createBrowserHistory();
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter >
       <Layout>
 
       </Layout>

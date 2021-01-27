@@ -17,7 +17,10 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
-import { NotificationsActive, AccessTime, Home } from '@material-ui/icons';
+import { NotificationsActive, AccessTime, Home, PlusOne } from '@material-ui/icons';
+import routes from '../services/routes';
+import { Link, useHistory } from "react-router-dom";
+import { Redirect } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -83,9 +86,9 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function Navigation() {
+export default function Navigation(props) {
+    const history = useHistory();
     const classes = useStyles();
-    const theme = useTheme();
     const [open, setOpen] = React.useState(false);
 
     const handleDrawerOpen = () => {
@@ -95,7 +98,6 @@ export default function Navigation() {
     const handleDrawerClose = () => {
         setOpen(false);
     };
-
     return (
         <Drawer
             variant="permanent"
@@ -124,12 +126,15 @@ export default function Navigation() {
             </div>
             <Divider />
             <List>
-                <ListItem>
-                    <IconButton key="inbox">
-                        <Home></Home>
-                    </IconButton>
-                    <ListItemText style={{ marginLeft: 10 }}>{"Inbox"}</ListItemText>
-                </ListItem>
+                <Link to={routes.home}>
+                    <ListItem>
+                        <IconButton key="home">
+                            <Home></Home>
+                        </IconButton>
+                        <ListItemText style={{ marginLeft: 10 }}>{"Inbox"}</ListItemText>
+                    </ListItem>
+                </Link>
+
                 <ListItem>
                     <IconButton key="inbox">
                         <MailIcon></MailIcon>
@@ -144,10 +149,16 @@ export default function Navigation() {
                 </ListItem>
 
                 <ListItem>
-                    <IconButton key="notification">
+                    <IconButton key="subs">
                         <AccessTime></AccessTime>
                     </IconButton>
-                    <ListItemText style={{ marginLeft: 10 }}>{"Notifications"}</ListItemText>
+                    <ListItemText style={{ marginLeft: 10 }}>{"Subscriptions"}</ListItemText>
+                </ListItem>
+                <ListItem>
+                    <IconButton key="add" onClick={() => history.push(routes.initPost)}>
+                        <PlusOne></PlusOne>
+                    </IconButton>
+                    <ListItemText style={{ marginLeft: 10 }}>{"Add post"}</ListItemText>
                 </ListItem>
             </List>
         </Drawer>
