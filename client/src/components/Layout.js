@@ -15,6 +15,8 @@ import Profile from "./user/Profile";
 import Navigation from "./Navigation";
 import Routes from "../services/routes";
 import InitPost from "./post/InitPost";
+import InitDialog from "./chat/InitDialog";
+import Chat from "./chat/chat";
 
 export default function Layout(props) {
     return (
@@ -29,6 +31,9 @@ export default function Layout(props) {
                 <AuthRoute path={Routes.newFound} component={NewPost} found></AuthRoute>
                 <AuthRoute path={Routes.allPosts} component={PostsList} type="all"></AuthRoute>
                 <AuthRoute path={Routes.initPost} component={InitPost}></AuthRoute>
+                <AuthRoute path={Routes.dialog} component={Chat}></AuthRoute>
+                { /*<AuthRoute path={Routes.dialogs} component={}></AuthRoute> */}
+                <AuthRoute path={Routes.initDialog} component={InitDialog}></AuthRoute>
                 <Route path={Routes.login} component={Login}></Route>
                 <AuthRoute path={Routes.home} component={PostsList}></AuthRoute>
             </Switch>

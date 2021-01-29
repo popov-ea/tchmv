@@ -78,10 +78,10 @@ const getPosts = (params) => {
             PostLost.findAll({ ...query, include: [Breed, City, Image, District, Species,] })])
                 .then(([found, lost]) => {
                     found = found.map(f => {
-                        return { name: f.name, description: f.description, city: f.City, district: f.District, type: "found", species: f.Species, breed: f.Breed, createdAt: f.createdAt, images: f.Images };
+                        return { id: f.id, name: f.name, description: f.description, city: f.City, district: f.District, type: "found", species: f.Species, breed: f.Breed, createdAt: f.createdAt, images: f.Images };
                     });
                     lost = lost.map(l => {
-                        return { name: l.name, description: l.description, city: l.City, district: l.District, type: "lost", species: l.Species, breed: l.Breed, createdAt: l.createdAt, images: l.Images };
+                        return { id: l.id, name: l.name, description: l.description, city: l.City, district: l.District, type: "lost", species: l.Species, breed: l.Breed, createdAt: l.createdAt, images: l.Images };
                     });
                     return found.concat(lost);
                 })
@@ -106,6 +106,24 @@ router.get("/count", (request, response) => {
 router.get("/", (request, response) => {
     getPosts(request.query)
         .then((posts) => response.json(posts));
+})
+
+router.get("/:type/:postId", (request, responses) => {
+    const type = ["lost", "found"].find(x => x === request.params.type);
+    const postId = request.params.postId;
+    if (!type || !postId || typeof postId !== "number") {
+        return response.status(400);
+    }
+    const postFound = (post) => {
+        if (!post) {
+            return response.status(400)
+        }
+        return
+    }
+    switch (type) {
+        case "lost":
+            PostLost.findByPk().then(postFound)
+    }
 })
 
 module.exports = router;

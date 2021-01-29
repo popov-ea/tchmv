@@ -6,7 +6,8 @@ const dialog = require("../models/dialog");
 const { param } = require("./imagesController");
 const Dialog = db.Dialog;
 const User = db.User;
-const Post = db.Post;
+const PostLost = db.PostLost;
+const PostFound = db.PostFound;
 const Message = db.Message;
 const router = express.Router();
 
@@ -16,7 +17,7 @@ router.get("/:id", authJwt.verifyToken, (request, response) => {
     if (!id) {
         return response.status(404);
     }
-    Dialog.findByPk(id)
+    Dialog.findByPk(id, {include: [Message, PostFound, PostLost]})
         .then((dialog) => {
             if (!dialog) {
                 return response.status(404);
@@ -25,7 +26,7 @@ router.get("/:id", authJwt.verifyToken, (request, response) => {
         });
 });
 
-routers.get("/for-user/:userId", authJwt.verifyToken, (request, response) => {
+router.get("/for-user/:userId", authJwt.verifyToken, (request, response) => {
     if (request.params.userId !== request.userId) {
         return response.status(403);
     }
@@ -54,17 +55,19 @@ router.get("/messages/:dialogId", authJwt.verifyToken, (request, response) => {
         })
 });
 
-router.get("/init/:postId", authJwt.verifyToken, (request, response) => {
+router.get("/init/:type/:postId", authJwt.verifyToken, (request, response) => {
     if (!request.params.postId) {
         return response.status(404);
     }
-    Post.findByPk(response.params.postId, { include: [Dialog] })
+    const post = request.params.type === "lost" ? PostLost : PostFound;
+    post.findByPk(request.params.postId)
         .then((post) => {
             if (!post) {
                 return response.status(404);
             }
+            const postIdColumn = request.params.type === "lost" ? "postLostId" : "postFoundId";
             return Dialog.create({
-                postId: post.id,
+                [postIdColumn]: post.id,
                 initiatorId: request.userId
             });
         })
@@ -80,21 +83,23 @@ router.post("/messages/:dialogId", authJwt.verifyToken, (request, response) => {
         return response.status(400);
     }
 
-    Dialog.findByPk(request.params.dialogId, { include: [Message, Post] })
+    Dialog.findByPk(request.params.dialogId, { include: [Message, PostLost, PostFound] })
         .then((dialog) => {
             if (!dialog) {
                 return response.status(405);
             }
-            const userIds = [dialog.Post.userId, dialog.initiatorId];
+            const userIds = [(dialog.PosLost && dialog.PostLost.userId), dialog.initiatorId, (dialog.PostFound && dialog.PostFound.userId)];
             const userPermitted = userIds.some((i) => i === request.userId);
             if (!userPermitted) {
                 return response.status(403);
             }
             return Message.create({
-                dialogId: dialogId.id,
-                txt: request.body.text,
+                dialogId: dialog.id,
+                text: request.body.message,
                 fromUserId: request.userId,
                 toUserId: userIds.find(uid => uid !== request.userId)
             }).then((message) => response.json([...dialog.Messages, message]));
         });
 });
+
+module.exports = router;

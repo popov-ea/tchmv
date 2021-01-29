@@ -9,5 +9,8 @@ export default {
     allPosts: "/AllPosts",
     login: "/Login",
     home: "/",
-    initPost: "/InitPost"
+    initPost: "/InitPost",
+    initDialog: "/InitDialog",
+    dialog: "/Dialog",
+    dialogs: "/Dialogs"
 }

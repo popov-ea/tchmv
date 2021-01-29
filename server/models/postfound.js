@@ -29,6 +29,9 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsToMany(models.Image, {
         through: "PostFound_Images"
       });
+      this.hasMany(models.Dialog, {
+        foreignKey: "postFoundId"
+      });
     }
   };
   PostFound.init({

@@ -14,12 +14,27 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "initiatorId",
         as: "Initiator"
       });
+      // this.belongsTo(models.PostFound, {
+      //   foreignKey: "postFoundId"
+      // });
+      // this.belongsTo(models.PostLost, {
+      //   foreignKey: "postLostId"
+      // });
+      this.hasMany(models.Message, {
+        foreignKey: "dialogId"
+      });
+      this.belongsTo(models.PostLost, {
+        foreignKey: "postLostId"
+      });
+      this.belongsTo(models.PostFound, {
+        foreignKey: "postFoundId"
+      });
     }
   };
   Dialog.init({
-    postId: DataTypes.INTEGER,
     postFoundId: DataTypes.INTEGER,
-    initiatorId: DataTypes.INTEGER
+    initiatorId: DataTypes.INTEGER,
+    postLostId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Dialog',

@@ -3,6 +3,8 @@ import { Tooltip, LinearProgress, Card, Typography, CardHeader, Grid, Dialog, Di
 import { Pagination } from "@material-ui/lab";
 import { Close, MailOutlineOutlined, Search, Pets, LocationOn } from "@material-ui/icons";
 import { Carousel } from "react-responsive-carousel";
+import { useHistory } from "react-router-dom";
+import routes from "../../services/routes";
 
 const useStyles = makeStyles((theme) => ({
     card: {
@@ -29,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function PostsList(props) {
+    const history = useHistory();
     const classes = useStyles();
     const pageSize = props.pageSize || 10;
     const [start, setStart] = useState(props.start || 0);
@@ -113,7 +116,7 @@ export default function PostsList(props) {
                             </CardContent>
                             <CardActionArea>
                                 <CardActions style={{ float: "inline-end", alignItems: "end" }}>
-                                    <IconButton color="primary" className={classes.actionButton}>
+                                    <IconButton onClick={() => history.push(routes.initDialog, {postId: post.id, type: post.type})} color="primary" className={classes.actionButton}>
                                         <MailOutlineOutlined></MailOutlineOutlined>
                                     </IconButton>
                                 </CardActions>
