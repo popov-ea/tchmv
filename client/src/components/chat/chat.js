@@ -54,6 +54,7 @@ export default function Chat(props) {
                     return;
                 }
                 setMessages(msgs);
+                setTxt("");
             });
     };
 

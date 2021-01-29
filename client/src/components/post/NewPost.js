@@ -3,6 +3,8 @@ import { useState } from "react";
 import ImageUploader from "react-images-upload";
 import Alert from "../dialog/Alert";
 import authHeader from "../../services/authHeader";
+import { useHistory } from "react-router-dom";
+import routes from "../../services/routes";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -41,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function NewPost(props) {
     const classes = useStyles();
+    const history = useHistory();
     const found = props.found;
 
     const [photos, setPhotos] = useState([]);
@@ -112,6 +115,7 @@ export default function NewPost(props) {
                 });
             }).then(() => {
                 setLoading(false);
+                history.push(routes.allPosts);
             }).catch(() => {
                 setErrorText("Error ocurred while saving post");
                 setAlertOpened(true);

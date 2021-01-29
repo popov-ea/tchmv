@@ -21,9 +21,9 @@ import Chat from "./chat/chat";
 export default function Layout(props) {
     return (
         <Box>
-            {authService.isAuthenticated() ? <Navigation></Navigation> : null}
+            <Navigation></Navigation>   
             <Switch>
-                <AuthRoute path={Routes.registration} component={Registration}></AuthRoute>
+                <Route path={Routes.registration} component={Registration}></Route>
                 <AuthRoute path={Routes.profile} component={Profile}></AuthRoute>
                 <AuthRoute path={Routes.editProfile} component={EditProfile}></AuthRoute>
                 <AuthRoute path={Routes.changePassword} component={ChangePassword}></AuthRoute>

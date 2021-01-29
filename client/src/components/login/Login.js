@@ -1,7 +1,8 @@
 import { Grid, TextField, Button, makeStyles, Card, CardHeader, CardContent, Dialog, DialogTitle, DialogContentText, DialogContent, CardActions, DialogActions, CircularProgress, LinearProgress } from "@material-ui/core";
 import authService from "../../services/authService";
-import { Redirect } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import { useState } from "react";
+import routes from "../../services/routes";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -22,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Login() {
     const classes = useStyles();
+    const history = useHistory();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [alertOpened, setAlertOpened] = useState(false);
@@ -36,6 +38,7 @@ export default function Login() {
             authService.login(email, password)
                 .then(() => {
                     setLoading(false);
+                    history.push(routes.home)
                 })
                 .catch((message) => {
                     setLoading(false);

@@ -8,10 +8,11 @@ const User = db.User;
 const Role = db.Role;
 const router = express.Router();
 
-router.post("/new", [authJwt.verifyToken, authJwt.isAdmin], (req, res) => {
+router.post("/new", (req, res) => {
     const userData = req.body;
-    if (!userData.email || !userData.firstName || !userData.lastName || !userData.country || !userData.password || userData.roleId == null) {
+    if (!userData.email || !userData.firstName || !userData.lastName || !userData.password || userData.roleId == null) {
         res.status(405).json({ message: "Invalid data" });
+        return;
     }
     User.findOne({
         where: {

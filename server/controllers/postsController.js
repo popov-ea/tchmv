@@ -89,7 +89,7 @@ const getPosts = (params) => {
     }
 
     promise.then((posts) => posts.sort((a, b) => {
-        return new Date(a.createdAt) - new Date(b.createdAt);
+        return new Date(b.createdAt) - new Date(a.createdAt);
     }))
         .then((sortedPosts) => {
             return sortedPosts.slice(start, sortedPosts.length > end ? end : sortedPosts.length)

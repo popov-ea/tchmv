@@ -1,8 +1,10 @@
-import { TextField, makeStyles, Grid, Button, Dialog, DialogContent, DialogContentText, DialogActions, DialogTitle, Select, MenuItem, LinearProgress } from "@material-ui/core";
+import { TextField, makeStyles, Grid, Button, Dialog, DialogContent, DialogContentText, DialogActions, DialogTitle, Select, MenuItem, LinearProgress, Typography } from "@material-ui/core";
 import ImageUploader from "../image/ImageUploader";
 import { useState } from "react";
 import Alert from "../dialog/Alert";
 import authHeader from "../../services/authHeader";
+import routes from "../../services/routes";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -34,6 +36,7 @@ const fetchRoles = () => fetch("/api/users/roles").then((response) => response.j
 
 export default function Registration() {
     const classes = useStyles();
+    const history = useHistory();
     const invalidFormText = "Invalid form";
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -45,7 +48,7 @@ export default function Registration() {
     const [photo, setPhoto] = useState(null);
     const [errorText, setErrorText] = useState(invalidFormText);
     const [roles, setRoles] = useState([]);
-    const [role, setRole] = useState("");
+    const [role, setRole] = useState(1);
     const [loading, setLoading] = useState(false);
 
     if (roles.length === 0) {
@@ -72,6 +75,7 @@ export default function Registration() {
             }).then((result) => {
                 if (!photo) {
                     setLoading(false);
+                    history.push(routes.login);
                     return;
                 }
                 const userId = result.user.id;
@@ -84,6 +88,7 @@ export default function Registration() {
                     body: formData
                 }).then(() => {
                     setLoading(false);
+                    history.push(routes.login);
                     console.log(123);
                 }).catch(() => {
                     setErrorText("Photo upload failed");
@@ -104,6 +109,7 @@ export default function Registration() {
         <div>
             <Grid container alignItems="center" justify="center" style={{ minHeight: "100vh", minWidth: "100vh" }} direction="row">
                 <Grid item className={classes.gridCol}>
+                    <Typography style={{ fontSize: 40, marginBottom: 10, marginLeft: 10 }}>Register</Typography>
                     <ImageUploader url="/api/images" fileChange={(f) => setPhoto(f)}></ImageUploader>
                 </Grid>
 
@@ -127,14 +133,14 @@ export default function Registration() {
                                 onChange={(event) => setLastName(event.target.value)}
                                 InputLabelProps={{ shrink: true }}></TextField>
                         </div>
-                        <div>
+                        {/* <div>
                             <TextField id="country"
                                 variant="outlined"
                                 label="Country"
                                 value={country}
                                 onChange={(event) => setCountry(event.target.value)}
                                 InputLabelProps={{ shrink: true }}></TextField>
-                        </div>
+                        </div> */}
                         <div>
                             <TextField id="email"
                                 required
@@ -166,15 +172,15 @@ export default function Registration() {
                                 InputLabelProps={{ shrink: true }}></TextField>
                         </div>
                         <div>
-                            <Select required
+                            {/* <Select required
                                 className={classes.select}
                                 variant="outlined"
                                 value={role}
                                 onChange={(event) => setRole(event.target.value)}
-                            >{roles.map((r) => (<MenuItem value={r.id}>{r.name}</MenuItem>))}</Select>
+                            >{roles.map((r) => (<MenuItem value={r.id}>{r.name}</MenuItem>))}</Select> */}
                         </div>
                     </form>
-                    <Button className={classes.btn} onClick={sendForm} variant="outlined" >Add user</Button>
+                    <Button className={classes.btn} onClick={sendForm} variant="outlined" >Register</Button>
                     {loading && <LinearProgress className={classes.loading}></LinearProgress>}
                 </Grid>
             </Grid>
